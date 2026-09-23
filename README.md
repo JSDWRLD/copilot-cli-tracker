@@ -32,6 +32,23 @@ directory path: the command must use an **absolute path**, not `~`.
 }
 ```
 
+On Windows, edit `%USERPROFILE%\.copilot\settings.json` and use `-X utf8`.
+Because this command is inside JSON, write each Windows path separator as
+`\\`:
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "python3 -X utf8 C:\\Users\\YOUR_USERNAME\\.copilot\\copilot-cli-tracker.py",
+    "refreshInterval": 30
+  }
+}
+```
+
+Replace `YOUR_USERNAME` with your Windows account name and adjust the path if
+you saved the script elsewhere.
+
 Restart Copilot CLI after changing settings. The CLI sends a JSON payload on
 stdin; the script prints one status line on stdout. To preview it without
 Copilot:
@@ -63,8 +80,13 @@ The optional budget changes the month value to `spent/limit`. It turns amber
 at 80% and red at 100%; change the threshold with
 `month_cost.budget_warning_percent`. These dollar values are **AI-credit
 equivalents**, not your GitHub invoice or remaining account balance. The
-script converts the `total_nano_aiu` usage supplied by Copilot at 1 AI Credit
-= $0.01; it does not maintain per-model prices.
+tracker divides Copilot's `total_nano_aiu` value by 1e9 to display AI Credits,
+then uses GitHub's $0.01-per-credit rate. GitHub's
+[Copilot SDK usage documentation](https://docs.github.com/en/copilot/how-tos/copilot-sdk/features/usage-and-billing#accumulated-ai-credit-and-token-totals)
+describes `totalNanoAiu` as session-wide AI-credit cost and demonstrates that
+conversion. The public docs do not explicitly document the CLI status-line
+field `ai_used.total_nano_aiu`, so treat this as an AI-credit equivalent, not
+an exact billing record. The tracker does not calculate model-specific prices.
 
 The context segment has no emoji or block gauge by default. At high context
 usage, text turns red. If Copilot supplies a count and percentage that
